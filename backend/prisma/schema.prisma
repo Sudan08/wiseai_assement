@@ -9,13 +9,62 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(uuid())
+  name       String
+  email      String     @unique
+  password   String
+  role       String     @default("user")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  
+  properties Property[]
+  favourites Favourite[]
 
   @@index([email])
+}
+
+model Property {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  price       Decimal    @db.Decimal(10, 2)
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  bedrooms    Int
+  bathrooms   Int
+  area        Decimal    @db.Decimal(10, 2)
+  propertyType String    // e.g., "apartment", "house", "condo", "villa"
+  status      String     @default("available") // e.g., "available", "sold", "rented"
+  images      String[]   // Array of image URLs
+  
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  favourites  Favourite[]
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([city])
+  @@index([propertyType])
+  @@index([status])
+}
+
+model Favourite {
+  id         String   @id @default(uuid())
+  
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, propertyId]) // Prevents duplicate favourites
+  @@index([userId])
+  @@index([propertyId])
 }
