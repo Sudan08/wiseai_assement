@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.wiseyak.test"
+      "bundleIdentifier": "com.wiseai.test"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.wiseyak.test"
+      "package": "com.wiseai.test"
     },
     "web": {
       "favicon": "./assets/favicon.png",
