@@ -3,6 +3,10 @@ import cors from "cors";
 
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import authRouter from "../src/routers/auth.route";
+import userRouter from "../src/routers/user.route";
+import propertyRouter from "../src/routers/property.route";
+import favouriteRouter from "../src/routers/favourite.route";
 
 dotenv.config();
 
@@ -18,6 +22,11 @@ app.use(
 );
 
 app.use(cookieParser());
+
+app.use("/api", authRouter);
+app.use("/api", userRouter);
+app.use("/api", propertyRouter);
+app.use("/api", favouriteRouter);
 
 app.get("/", (req, res) => {
   res.json("Welcome to WiseAI API v1");

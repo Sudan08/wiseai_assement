@@ -4,46 +4,44 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id         String     @id @default(uuid())
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   email      String     @unique
   password   String
   role       String     @default("user")
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  
+
   properties Property[]
   favourites Favourite[]
 
-  @@index([email])
 }
 
 model Property {
-  id          String     @id @default(uuid())
-  title       String
-  description String?
-  price       Decimal    @db.Decimal(10, 2)
-  address     String
-  city        String
-  state       String
-  zipCode     String
-  bedrooms    Int
-  bathrooms   Int
-  area        Decimal    @db.Decimal(10, 2)
-  propertyType String    // e.g., "apartment", "house", "condo", "villa"
-  status      String     @default("available") // e.g., "available", "sold", "rented"
-  images      String[]   // Array of image URLs
-  
-  userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  description  String?
+  price        Float
+  address      String
+  city         String
+  state        String
+  zipCode      String
+  bedrooms     Int
+  bathrooms    Int
+  area         Float
+  propertyType String
+  status       String     @default("available")
+  images       String[]
+  userId      String     @db.ObjectId
+  user        User       @relation(fields: [userId], references: [id])
+
   favourites  Favourite[]
-  
+
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -54,17 +52,17 @@ model Property {
 }
 
 model Favourite {
-  id         String   @id @default(uuid())
-  
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId     String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id])
+
+  propertyId String   @db.ObjectId
+  property   Property @relation(fields: [propertyId], references: [id])
+
   createdAt  DateTime @default(now())
 
-  @@unique([userId, propertyId]) // Prevents duplicate favourites
+  @@unique([userId, propertyId])
   @@index([userId])
   @@index([propertyId])
 }

@@ -1,15 +1,12 @@
 import "dotenv/config";
-import { PrismaClient } from "../../generated/prisma/client";
-
-const prisma = new PrismaClient();
-
+import { prisma } from "../lib/prismaClient";
 async function main() {
   // Dynamic import for ESM-only Faker (required for CommonJS compatibility)
   const { faker } = await import("@faker-js/faker");
 
   const count = 25;
 
-  console.log("🌱 Starting seed...");
+  console.log("🌱 Starting user seed (MongoDB)...");
 
   const users = Array.from({ length: count }, () => {
     const first = faker.person.firstName();
@@ -18,9 +15,7 @@ async function main() {
     const email = faker.internet
       .email({ firstName: first, lastName: last })
       .toLowerCase();
-
     return {
-      id: faker.string.uuid(),
       name,
       email,
       password: faker.internet.password({ length: 12 }),
@@ -35,7 +30,6 @@ async function main() {
 
   const result = await prisma.user.createMany({
     data: users,
-    skipDuplicates: true,
   });
 
   console.log(
