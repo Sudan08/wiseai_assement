@@ -7,6 +7,7 @@ import authRouter from "../src/routers/auth.route";
 import userRouter from "../src/routers/user.route";
 import propertyRouter from "../src/routers/property.route";
 import favouriteRouter from "../src/routers/favourite.route";
+import morgan from "morgan";
 
 dotenv.config();
 
@@ -17,11 +18,13 @@ const _APP_PORT = process.env.APP_PORT || 4000;
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: "*",
   })
 );
 
 app.use(cookieParser());
+
+app.use(morgan("dev"));
 
 app.use("/api", authRouter);
 app.use("/api", userRouter);

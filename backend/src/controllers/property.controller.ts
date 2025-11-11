@@ -3,11 +3,32 @@ import { prisma } from "../lib/prismaClient";
 
 export async function getAllPropertiesController(req: Request, res: Response) {
   try {
-    const { city, propertyType, status, minPrice, maxPrice, userId } =
-      req.query;
+    const page = parseInt((req.query.page as string) || "1", 10);
+    const limit = parseInt((req.query.limit as string) || "10", 10);
+    const skip = (page - 1) * limit;
+
+    const {
+      search,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+      city,
+      propertyType,
+      status,
+      minPrice,
+      maxPrice,
+      userId,
+    } = req.query;
 
     const where: any = {};
 
+    if (search) {
+      where.OR = [
+        { title: { contains: search as string, mode: "insensitive" } },
+        { description: { contains: search as string, mode: "insensitive" } },
+        { city: { contains: search as string, mode: "insensitive" } },
+        { address: { contains: search as string, mode: "insensitive" } },
+      ];
+    }
     if (city) where.city = city as string;
     if (propertyType) where.propertyType = propertyType as string;
     if (status) where.status = status as string;
@@ -22,29 +43,37 @@ export async function getAllPropertiesController(req: Request, res: Response) {
       }
     }
 
+    let orderBy: any = {};
+    if (sortBy) {
+      orderBy[sortBy as string] = sortOrder === "asc" ? "asc" : "desc";
+    } else {
+      orderBy = { createdAt: "desc" };
+    }
+
+    const total = await prisma.property.count({ where });
+
     const properties = await prisma.property.findMany({
       where,
       include: {
         user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+          select: { id: true, name: true, email: true },
         },
         favourites: {
-          select: {
-            id: true,
-            userId: true,
-          },
+          select: { id: true, userId: true },
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
+      skip,
+      take: limit,
     });
 
-    return res.status(200).json(properties);
+    return res.status(200).json({
+      data: properties,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     return res.status(500).json({ error: "Failed to fetch properties" });
   }
