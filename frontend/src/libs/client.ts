@@ -1,5 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { QueryClient } from "@tanstack/react-query";
+import { API_ROUTES } from "../enum";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEY } from "../hooks/useAuth";
+import { LoginResponse } from "../types";
+
 export const API_URL =
   process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000/api";
 
@@ -11,6 +16,27 @@ export const axiosInstance = axios.create({
   timeout: 10000,
   withCredentials: true,
 });
+
+axiosInstance.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    const userString = await AsyncStorage.getItem(STORAGE_KEY);
+    if (userString) {
+      const user = JSON.parse(userString) as LoginResponse;
+
+      // Use refresh token for refresh endpoint, access token for others
+      const token =
+        config.url === API_ROUTES.AUTH_REFRESH
+          ? user?.refreshToken
+          : user?.accessToken;
+
+      if (token) {
+        config.headers.set("Authorization", `Bearer ${token}`);
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -27,16 +53,32 @@ axiosInstance.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      await axiosInstance.post(
-        "/auth/refresh",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      // Call refresh endpoint
+      const response = await axiosInstance.post<{
+        accessToken: string;
+        refreshToken: string;
+      }>(API_ROUTES.AUTH_REFRESH, {});
 
+      const { accessToken, refreshToken } = response.data;
+
+      // Update stored tokens
+      const userString = await AsyncStorage.getItem(STORAGE_KEY);
+      if (userString) {
+        const user = JSON.parse(userString) as LoginResponse;
+        const updatedUser: LoginResponse = {
+          ...user,
+          accessToken,
+          refreshToken,
+        };
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
+      }
+
+      // Retry original request with new token
+      originalRequest.headers.set("Authorization", `Bearer ${accessToken}`);
       return axiosInstance(originalRequest);
     } catch (refreshError) {
+      // Clear storage on refresh failure
+      await AsyncStorage.removeItem(STORAGE_KEY);
       return Promise.reject(refreshError);
     }
   }

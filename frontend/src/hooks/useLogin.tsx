@@ -18,8 +18,7 @@ export const useLoginMutation = () => {
       ).data;
     },
     onSuccess: (data: LoginResponse) => {
-      login(data.user);
-      router.replace("/(tabs)");
+      login(data);
     },
     onError: (error: AxiosError) => {
       console.log(error.response?.data || error.message);

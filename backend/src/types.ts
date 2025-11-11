@@ -37,3 +37,16 @@ export type StringValue =
   | `${number}`
   | `${number}${UnitAnyCase}`
   | `${number} ${UnitAnyCase}`;
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        email?: string;
+        role?: string;
+        [key: string]: any;
+      };
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import {
   ScrollView,
   View,
@@ -8,38 +8,43 @@ import {
   useWindowDimensions,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 import { useGetProperty } from "../../src/hooks/useGetProperty";
 import { Ionicons } from "@expo/vector-icons";
-// import { useAuth } from "../../src/hooks/useAuth"; // Uncomment if you need user info
+
+import { useAuth } from "../../src/hooks/useAuth";
+import { usePostFavouriteMutation } from "../../src/hooks/favourite/usePostFavourite";
+import { useFavourite } from "../../src/hooks/favourite/useFavourite";
+import { fa } from "zod/v4/locales";
+import { useDeleteFavouriteMutation } from "../../src/hooks/favourite/useDeleteFavourite";
 
 const PropertyDetailPage = () => {
   const { propertyId } = useLocalSearchParams();
   const { data: property, isLoading } = useGetProperty(propertyId as string);
   const { width } = useWindowDimensions();
-  // const { user } = useAuth(); // Uncomment if you want to check user
+  const { data } = useAuth();
 
-  const [favoLoading, setFavoLoading] = useState(false);
-  const [isFavourited, setIsFavourited] = useState(false);
+  const { favourites } = useFavourite();
 
-  // Dummy function for favourite, you should replace with mutation/query
+  const isFavourited = favourites?.some((fav) => fav.propertyId === propertyId);
+
+  const { mutateAsync: postFavourite, isPending: favoLoading } =
+    usePostFavouriteMutation();
+
+  const { mutateAsync: deleteFavourite, isPending: deleteLoading } =
+    useDeleteFavouriteMutation();
+
   const handleFavourite = async () => {
-    try {
-      setFavoLoading(true);
-      // Here, you would call your API/mutation to add/remove favourite
-      // await addFavourite(propertyId, user.id);
-
-      setTimeout(() => {
-        setIsFavourited((f) => !f);
-        setFavoLoading(false);
-        Alert.alert(
-          isFavourited ? "Removed from Favourites" : "Added to Favourites"
-        );
-      }, 700); // Simulate network delay
-    } catch (e) {
-      setFavoLoading(false);
-      Alert.alert("Error", "Could not update favourites");
+    if (isFavourited) {
+      return await deleteFavourite({
+        propertyId: propertyId as string,
+        userId: data?.user?.id as string,
+      });
+    } else {
+      return await postFavourite({
+        propertyId: propertyId as string,
+        userId: data?.user?.id as string,
+      });
     }
   };
 
@@ -115,9 +120,9 @@ const PropertyDetailPage = () => {
             }`}
             activeOpacity={0.8}
             onPress={handleFavourite}
-            disabled={favoLoading}
+            disabled={favoLoading || deleteLoading}
           >
-            {favoLoading ? (
+            {favoLoading || deleteLoading ? (
               <ActivityIndicator size={20} color="#f43f5e" />
             ) : (
               <Ionicons

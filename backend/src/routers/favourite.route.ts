@@ -6,19 +6,19 @@ import {
   getAllFavouritesController,
   getFavouriteByIdController,
 } from "../controllers/favourite.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/favourites", getAllFavouritesController);
+router.get("/favourites", authMiddleware, getAllFavouritesController);
 
-router.get("/favourites/:id", getFavouriteByIdController);
+router.post("/favourites", authMiddleware, createFavouriteController);
 
-router.post("/favourites", createFavouriteController);
-
-router.delete("/favourites/:id", deleteFavouriteController);
+router.delete("/favourites/:id", authMiddleware, deleteFavouriteController);
 
 router.delete(
   "/favourites/user/:userId/property/:propertyId",
+  authMiddleware,
   deleteFavouriteByUserAndPropertyController
 );
 

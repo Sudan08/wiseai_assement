@@ -8,15 +8,15 @@ import React, {
   use,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "../types";
+import { LoginResponse, User } from "../types";
 import { useRouter } from "expo-router";
 
-const STORAGE_KEY = "@user";
+export const STORAGE_KEY = "@user";
 
 interface AuthContextType {
-  user: User | null;
+  data: LoginResponse | null;
   loading: boolean;
-  login: (userData: User) => Promise<void>;
+  login: (userData: LoginResponse) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -27,15 +27,15 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<LoginResponse | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
-        if (jsonValue) setUser(JSON.parse(jsonValue));
+        if (jsonValue) setData(JSON.parse(jsonValue));
       } catch (e) {
         console.error("Failed to load user", e);
       } finally {
@@ -45,10 +45,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loadUser();
   }, []);
 
-  const login = async (userData: User) => {
+  const login = async (userData: LoginResponse) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-      setUser(userData);
+      setData(userData);
     } catch (e) {
       console.error("Failed to save user", e);
     }
@@ -57,15 +57,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
-      setUser(null);
-      router.replace("/");
+      setData(null);
+      router.replace("/(auth)/login");
     } catch (e) {
       console.error("Failed to remove user", e);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ data, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -33,7 +33,7 @@ export default function ProfileScreen() {
             </Text>
           </Text>
         </View>
-        <Button title="Logout" onPress={logout} color="#ef4444" />
+        <Button title="Logout" onPress={() => logout()} color="#ef4444" />
       </View>
     </>
   );

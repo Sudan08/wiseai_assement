@@ -35,14 +35,7 @@ export async function registerController(req: Request, res: Response) {
       },
     });
 
-    const accessToken = signAccessToken({
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    });
-    const refreshToken = signRefreshToken({ sub: user.id });
-
-    return res.status(201).json({ user, accessToken, refreshToken });
+    return res.status(201).json({ user });
   } catch (error) {
     return res.status(500).json({ error: "Failed to register user" });
   }
@@ -56,7 +49,9 @@ export async function loginController(req: Request, res: Response) {
       return res.status(400).json({ error: "email, password required" });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -74,16 +69,19 @@ export async function loginController(req: Request, res: Response) {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+
     const accessToken = signAccessToken({
-      sub: user.id,
+      userId: user.id,
       email: user.email,
       role: user.role,
     });
-    const refreshToken = signRefreshToken({ sub: user.id });
+    const refreshToken = signRefreshToken({ userId: user.id });
 
-    return res
-      .status(200)
-      .json({ user: publicUser, accessToken, refreshToken });
+    return res.status(200).json({
+      user: publicUser,
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Failed to login" });
@@ -92,27 +90,39 @@ export async function loginController(req: Request, res: Response) {
 
 export async function refreshController(req: Request, res: Response) {
   try {
-    const { refreshToken } = req.body ?? {};
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(400)
+        .json({ error: "refreshToken required in Authorization header" });
+    }
+
+    const refreshToken = authHeader.split(" ")[1];
 
     if (!refreshToken) {
       return res.status(400).json({ error: "refreshToken required" });
     }
 
     const payload = verifyRefreshToken(refreshToken);
-    const userId = payload.sub as string;
+    const userId = payload.userId as string;
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(401).json({ error: "Invalid token" });
     }
 
     const accessToken = signAccessToken({
-      sub: user.id,
+      userId: user.id,
       email: user.email,
       role: user.role,
     });
-    const newRefreshToken = signRefreshToken({ sub: user.id });
+    const newRefreshToken = signRefreshToken({ userId: user.id });
 
-    return res.status(200).json({ accessToken, refreshToken: newRefreshToken });
+    return res.status(200).json({
+      accessToken,
+      refreshToken: newRefreshToken,
+    });
   } catch (error) {
     return res.status(401).json({ error: "Invalid token" });
   }

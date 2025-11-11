@@ -90,7 +90,9 @@ export async function createFavouriteController(req: Request, res: Response) {
     const { userId, propertyId } = req.body;
 
     if (!userId || !propertyId) {
-      return res.status(400).json({ error: "userId and propertyId are required" });
+      return res
+        .status(400)
+        .json({ error: "userId and propertyId are required" });
     }
 
     // Verify user exists
@@ -187,7 +189,9 @@ export async function deleteFavouriteByUserAndPropertyController(
     const { userId, propertyId } = req.params;
 
     if (!userId || !propertyId) {
-      return res.status(400).json({ error: "userId and propertyId are required" });
+      return res
+        .status(400)
+        .json({ error: "userId and propertyId are required" });
     }
 
     const existingFavourite = await prisma.favourite.findUnique({
@@ -215,5 +219,30 @@ export async function deleteFavouriteByUserAndPropertyController(
     return res.status(200).json({ message: "Favourite removed successfully" });
   } catch (error) {
     return res.status(500).json({ error: "Failed to delete favourite" });
+  }
+}
+
+export async function getFavouritebyUserId(req: Request, res: Response) {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    const favourites = await prisma.favourite.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        createdAt: true,
+        property: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    return res.status(200).json(favourites);
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to fetch favourites" });
   }
 }

@@ -1,9 +1,3 @@
-export interface RegisterResponse {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
-
 export interface LoginResponse {
   user: User;
   accessToken: string;
@@ -91,7 +85,7 @@ export interface Favourite {
   userId: string;
   user: FavouriteUser;
   propertyId: string;
-  property: FavouriteProperty;
+  property: Property;
   createdAt: Date;
 }
 

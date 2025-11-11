@@ -6,17 +6,18 @@ import {
   getPropertyByIdController,
   updatePropertyController,
 } from "../controllers/property.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/properties", getAllPropertiesController);
+router.get("/properties", authMiddleware, getAllPropertiesController);
 
-router.get("/properties/:id", getPropertyByIdController);
+router.get("/properties/:id", authMiddleware, getPropertyByIdController);
 
-router.post("/properties", createPropertyController);
+router.post("/properties", authMiddleware, createPropertyController);
 
-router.put("/properties/:id", updatePropertyController);
+router.put("/properties/:id", authMiddleware, updatePropertyController);
 
-router.delete("/properties/:id", deletePropertyController);
+router.delete("/properties/:id", authMiddleware, deletePropertyController);
 
 export default router;

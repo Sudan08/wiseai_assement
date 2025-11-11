@@ -1,28 +1,33 @@
 // Register.tsx
 import React from "react";
 import { View, TextInput, Pressable, Text, ScrollView } from "react-native";
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { registerUserSchema, registerUserSchemaType } from "../src/schemas/user.schema";
-import { z } from 'zod';
-import { useRegisterMutation } from "../src/hooks/useRegister";
-
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  registerUserSchema,
+  registerUserSchemaType,
+} from "../../src/schemas/user.schema";
+import { useRegisterMutation } from "../../src/hooks/useRegister";
 
 const Register = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm<registerUserSchemaType>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<registerUserSchemaType>({
     resolver: zodResolver(registerUserSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    }
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const { mutateAsync, isPending } = useRegisterMutation();
 
   const onSubmit = (data: registerUserSchemaType) => {
-    mutateAsync(data)
+    mutateAsync(data);
   };
 
   return (
@@ -44,7 +49,9 @@ const Register = () => {
           )}
         />
         {errors.name && (
-          <Text className="text-red-500 mb-2 text-sm">{errors.name.message}</Text>
+          <Text className="text-red-500 mb-2 text-sm">
+            {errors.name.message}
+          </Text>
         )}
 
         <Controller
@@ -64,7 +71,9 @@ const Register = () => {
           )}
         />
         {errors.email && (
-          <Text className="text-red-500 mb-2 text-sm">{errors.email.message}</Text>
+          <Text className="text-red-500 mb-2 text-sm">
+            {errors.email.message}
+          </Text>
         )}
 
         <Controller
@@ -83,7 +92,9 @@ const Register = () => {
           )}
         />
         {errors.password && (
-          <Text className="text-red-500 mb-2 text-sm">{errors.password.message}</Text>
+          <Text className="text-red-500 mb-2 text-sm">
+            {errors.password.message}
+          </Text>
         )}
 
         <Controller
@@ -102,7 +113,9 @@ const Register = () => {
           )}
         />
         {errors.confirmPassword && (
-          <Text className="text-red-500 mb-3 text-sm">{errors.confirmPassword.message}</Text>
+          <Text className="text-red-500 mb-3 text-sm">
+            {errors.confirmPassword.message}
+          </Text>
         )}
 
         <Pressable
@@ -110,7 +123,9 @@ const Register = () => {
           className="bg-green-600 px-4 py-3 rounded-md items-center mt-2"
           disabled={isPending}
         >
-          <Text className="text-white font-semibold text-lg">Create Account</Text>
+          <Text className="text-white font-semibold text-lg">
+            Create Account
+          </Text>
         </Pressable>
       </View>
     </ScrollView>

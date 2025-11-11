@@ -7,5 +7,5 @@ export enum API_ROUTES {
 
   PROPERTIES_GET_ALL = "/properties",
 
-  FAVOURITES_GET_ALL = "/favourites",
+  FAVOURITES = "/favourites",
 }

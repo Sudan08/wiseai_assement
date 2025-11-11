@@ -1,21 +1,22 @@
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, Pressable, ImageBackground } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Onboarding = () => {
   const router = useRouter();
 
   const navigateLogin = () => {
-    router.push("login");
+    router.push("/(auth)/login");
   };
 
   const navigateRegister = () => {
-    router.push("register");
+    router.push("/(auth)/register");
   };
 
   return (
     <ImageBackground
-      source={require("../assets/img/login.jpg")}
+      source={require("../../assets/img/login.jpg")}
       className="flex-1 w-full h-full"
       resizeMode="cover"
     >
@@ -29,7 +30,10 @@ const Onboarding = () => {
 
         {/* Bottom buttons */}
         <View className="w-full">
-          <Pressable onPress={navigateRegister} className="bg-blue-800 h-16 w-full rounded-md items-center justify-center mb-4">
+          <Pressable
+            onPress={navigateRegister}
+            className="bg-blue-800 h-16 w-full rounded-md items-center justify-center mb-4"
+          >
             <Text className="text-white text-xl">Register</Text>
           </Pressable>
           <View className="flex-row justify-center items-center">

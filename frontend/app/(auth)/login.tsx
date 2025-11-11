@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   loginUserSchema,
   loginUserSchemaType,
-} from "../src/schemas/user.schema";
-import { useLoginMutation } from "../src/hooks/useLogin";
+} from "../../src/schemas/user.schema";
+import { useLoginMutation } from "../../src/hooks/useLogin";
 
 const Login = () => {
   const {

@@ -14,14 +14,11 @@ const PropertyCard = ({
       ? property.images[0]
       : "https://via.placeholder.com/800x600?text=No+Image";
 
-  console.log(property.images.at(0));
-
   return (
     <TouchableOpacity
       className="bg-white rounded-2xl shadow-md my-4 mx-4 overflow-hidden"
       activeOpacity={0.85}
       onPress={onPress}
-      testID="property-card"
     >
       <Image
         source={{ uri: imageUrl }}
@@ -53,7 +50,7 @@ const PropertyCard = ({
           </Text>
         </View>
         <View className="flex-row justify-between items-center">
-          <Text className="text-xs font-semibold  uppercase text-blue-600">
+          <Text className="text-xs font-semibold tracking-wider uppercase text-blue-600">
             {property.propertyType}
           </Text>
           <Text

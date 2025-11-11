@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useAuth } from "../hooks/useAuth";
 
 const BottomTabs = () => {
   return (
@@ -17,21 +18,13 @@ const BottomTabs = () => {
           ),
         }}
       />
+
       <Tabs.Screen
         name="search"
         options={{
           title: "Search",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="search-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="favourite"
-        options={{
-          title: "Favourite",
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="heart-outline" size={size} color={color} />
           ),
         }}
       />
@@ -44,6 +37,16 @@ const BottomTabs = () => {
           ),
         }}
       />
+      <Tabs.Screen
+        name="favourite"
+        options={{
+          title: "Favourite",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="heart-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="profile"
         options={{
