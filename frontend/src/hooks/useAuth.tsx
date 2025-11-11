@@ -5,9 +5,11 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  use,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User } from "../types";
+import { useRouter } from "expo-router";
 
 const STORAGE_KEY = "@user";
 
@@ -27,8 +29,8 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  // Load user from AsyncStorage
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -56,6 +58,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
       setUser(null);
+      router.replace("/");
     } catch (e) {
       console.error("Failed to remove user", e);
     }

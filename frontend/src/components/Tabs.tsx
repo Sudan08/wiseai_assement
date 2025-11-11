@@ -27,12 +27,33 @@ const BottomTabs = () => {
         }}
       />
       <Tabs.Screen
+        name="favourite"
+        options={{
+          title: "Favourite",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="heart-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="propertyAdd"
+        options={{
+          title: "Add Property",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="add-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="person-outline" color={color} size={size} />
-          ),
+          href: null, // ✅ hides it from the tab bar completely
+        }}
+      />
+      <Tabs.Screen
+        name="[propertyId]"
+        options={{
+          href: null, // ✅ hides it from the tab bar completely
         }}
       />
     </Tabs>
