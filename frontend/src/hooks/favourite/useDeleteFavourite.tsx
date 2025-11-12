@@ -11,10 +11,12 @@ export const useDeleteFavouriteMutation = () => {
         `${API_ROUTES.FAVOURITES}/user/${userId}/property/${propertyId}`
       );
     },
-    onSuccess: (response, variables) => {
-      console.log("Favourite deleted:", variables.propertyId);
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["favourite", variables.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["property", "recommended"],
       });
     },
     onError: (error: AxiosError, variables) => {

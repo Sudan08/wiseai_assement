@@ -1,13 +1,13 @@
 import React from "react";
-import { FlatList, View } from "react-native";
-import { useGetProperties } from "../../hooks/property/useGetProperties";
+import { View } from "react-native";
 import PropertyCardSkeleton from "../common/SkeletonPropertyCard";
 import PropertyCard from "../common/PropertyCard";
 import { Property } from "../../types";
 import { router } from "expo-router";
+import { useGetRecommendedProperty } from "../../hooks/property/useGetRecommendedProperty";
 
 const HomePropertyList = () => {
-  const { data, isLoading } = useGetProperties({ page: 1, limit: 5 });
+  const { data, isLoading, error } = useGetRecommendedProperty();
 
   const propertyData = data?.data || [];
 

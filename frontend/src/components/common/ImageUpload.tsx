@@ -26,8 +26,6 @@ export default function ImageUploader({
   const [isUploading, setIsUploading] = useState(false);
   const uploadMutation = useImageUploadMutation();
 
-  console.log("Current images:", images);
-
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {

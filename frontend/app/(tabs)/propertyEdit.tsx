@@ -1,0 +1,525 @@
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { useEffect, useState } from "react";
+import ImageUploader from "../../src/components/common/ImageUpload";
+import { useGetProperty } from "../../src/hooks/property/useGetProperty";
+import {
+  propertyFormSchema,
+  PropertyFormSchemaType,
+} from "../../src/schemas/property.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { usePatchPropertyMutation } from "../../src/hooks/property/usePatchProperty";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { propertyTypes, statusOptions } from "../../src/constants";
+
+export default function PropertyEdit() {
+  const { propertyId } = useLocalSearchParams<{ propertyId: string }>();
+  const { data, isLoading } = useGetProperty(propertyId);
+
+  const router = useRouter();
+
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PropertyFormSchemaType>({
+    resolver: zodResolver(propertyFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      price: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      bedrooms: "",
+      bathrooms: "",
+      area: "",
+      propertyType: "house",
+      status: "available",
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      reset({
+        ...data,
+        price: String(data.price),
+        bedrooms: String(data.bedrooms),
+        bathrooms: String(data.bathrooms),
+        area: String(data.area),
+      });
+      setSelectedImages(data.images || []);
+    }
+  }, [data, reset]);
+
+  const { mutateAsync, isPending: isUpdating } = usePatchPropertyMutation();
+
+  const onSubmit = async (formData: any) => {
+    try {
+      const formattedData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        bedrooms: parseInt(formData.bedrooms),
+        bathrooms: parseFloat(formData.bathrooms),
+        area: parseFloat(formData.area),
+        images: selectedImages,
+      };
+
+      await mutateAsync({ propertyId, payload: formattedData });
+
+      Alert.alert("Property updated", "Your changes have been saved.");
+
+      router.push("/(tabs)/" + propertyId);
+    } catch (error) {
+      Alert.alert("Error", "Failed to update property");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-gray-50">
+      <View className="px-5 pt-6 pb-10">
+        {/* Header Section */}
+        <View className="mb-8">
+          <Text className="text-3xl font-bold text-gray-900 mb-2">
+            Edit Property
+          </Text>
+          <Text className="text-base text-gray-600">
+            Update your property's details below
+          </Text>
+        </View>
+
+        {/* Basic Information Section */}
+        <View className="mb-8">
+          <View className="mb-6">
+            <View className="flex-row items-center mb-4">
+              <View className="w-1 h-6 bg-blue-600 rounded-full mr-3" />
+              <Text className="text-xl font-bold text-gray-900">
+                Basic Information
+              </Text>
+            </View>
+          </View>
+
+          {/* Title */}
+          <View className="mb-6">
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              Property Title <Text className="text-red-500">*</Text>
+            </Text>
+            <Controller
+              control={control}
+              name="title"
+              rules={{ required: "Title is required" }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900"
+                  placeholder="e.g., Modern 3BR House in Downtown"
+                  placeholderTextColor="#9CA3AF"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.title && (
+              <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                {errors.title.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Description */}
+          <View className="mb-6">
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              Description
+            </Text>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900 min-h-[100px]"
+                  placeholder="Describe your property features, amenities, and highlights..."
+                  placeholderTextColor="#9CA3AF"
+                  value={value}
+                  onChangeText={onChange}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+              )}
+            />
+          </View>
+
+          {/* Price */}
+          <View className="mb-4">
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              Price <Text className="text-red-500">*</Text>
+            </Text>
+            <View className="relative">
+              <Text className="absolute left-4 top-3.5 text-gray-500 text-base font-medium z-10">
+                $
+              </Text>
+              <Controller
+                control={control}
+                name="price"
+                rules={{
+                  required: "Price is required",
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: "Enter a valid price",
+                  },
+                }}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-white border border-gray-300 rounded-xl pl-8 pr-4 py-3.5 text-base text-gray-900"
+                    placeholder="250000"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="decimal-pad"
+                  />
+                )}
+              />
+            </View>
+            {errors.price && (
+              <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                {errors.price.message}
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {/* Location Section */}
+        <View className="mb-8">
+          <View className="mb-6">
+            <View className="flex-row items-center mb-4">
+              <View className="w-1 h-6 bg-blue-600 rounded-full mr-3" />
+              <Text className="text-xl font-bold text-gray-900">
+                Location Details
+              </Text>
+            </View>
+          </View>
+
+          {/* Address */}
+          <View className="mb-6">
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              Street Address <Text className="text-red-500">*</Text>
+            </Text>
+            <Controller
+              control={control}
+              name="address"
+              rules={{ required: "Address is required" }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900"
+                  placeholder="123 Main Street"
+                  placeholderTextColor="#9CA3AF"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.address && (
+              <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                {errors.address.message}
+              </Text>
+            )}
+          </View>
+
+          {/* City */}
+          <View className="mb-6">
+            <Text className="text-sm font-semibold text-gray-700 mb-2">
+              City <Text className="text-red-500">*</Text>
+            </Text>
+            <Controller
+              control={control}
+              name="city"
+              rules={{ required: "City is required" }}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900"
+                  placeholder="New York"
+                  placeholderTextColor="#9CA3AF"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.city && (
+              <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                {errors.city.message}
+              </Text>
+            )}
+          </View>
+
+          {/* State and ZIP */}
+          <View className="flex-row gap-4 mb-4">
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                State <Text className="text-red-500">*</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="state"
+                rules={{ required: "State is required" }}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900"
+                    placeholder="NY"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                    maxLength={2}
+                    autoCapitalize="characters"
+                  />
+                )}
+              />
+              {errors.state && (
+                <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                  {errors.state.message}
+                </Text>
+              )}
+            </View>
+
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                ZIP Code <Text className="text-red-500">*</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="zipCode"
+                rules={{ required: "ZIP code is required" }}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900"
+                    placeholder="10001"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="number-pad"
+                    maxLength={5}
+                  />
+                )}
+              />
+              {errors.zipCode && (
+                <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                  {errors.zipCode.message}
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* Property Details Section */}
+        <View className="mb-8">
+          <View className="mb-6">
+            <View className="flex-row items-center mb-4">
+              <View className="w-1 h-6 bg-blue-600 rounded-full mr-3" />
+              <Text className="text-xl font-bold text-gray-900">
+                Property Details
+              </Text>
+            </View>
+          </View>
+
+          {/* Bedrooms, Bathrooms, Area */}
+          <View className="flex-row gap-4 mb-6">
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Bedrooms <Text className="text-red-500">*</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="bedrooms"
+                rules={{ required: "Required" }}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900 text-center"
+                    placeholder="3"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="number-pad"
+                  />
+                )}
+              />
+              {errors.bedrooms && (
+                <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                  {errors.bedrooms.message}
+                </Text>
+              )}
+            </View>
+
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Bathrooms <Text className="text-red-500">*</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="bathrooms"
+                rules={{ required: "Required" }}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900 text-center"
+                    placeholder="2"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="decimal-pad"
+                  />
+                )}
+              />
+              {errors.bathrooms && (
+                <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                  {errors.bathrooms.message}
+                </Text>
+              )}
+            </View>
+
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Area (sq ft) <Text className="text-red-500">*</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="area"
+                rules={{ required: "Required" }}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-3.5 text-base text-gray-900 text-center"
+                    placeholder="1500"
+                    placeholderTextColor="#9CA3AF"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="decimal-pad"
+                  />
+                )}
+              />
+              {errors.area && (
+                <Text className="text-red-500 text-xs mt-1.5 ml-1">
+                  {errors.area.message}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {/* Property Type */}
+          <View className="mb-6">
+            <Text className="text-sm font-semibold text-gray-700 mb-3">
+              Property Type <Text className="text-red-500">*</Text>
+            </Text>
+            <Controller
+              control={control}
+              name="propertyType"
+              render={({ field: { onChange, value } }) => (
+                <View className="flex-row flex-wrap gap-3">
+                  {propertyTypes.map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => onChange(type)}
+                      className={`px-5 py-3 rounded-xl border-2 ${
+                        value === type
+                          ? "bg-blue-50 border-blue-500"
+                          : "bg-white border-gray-300"
+                      }`}
+                    >
+                      <Text
+                        className={`capitalize text-base font-semibold ${
+                          value === type ? "text-blue-600" : "text-gray-700"
+                        }`}
+                      >
+                        {type}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            />
+          </View>
+
+          {/* Status */}
+          <View className="mb-4">
+            <Text className="text-sm font-semibold text-gray-700 mb-3">
+              Status <Text className="text-red-500">*</Text>
+            </Text>
+            <Controller
+              control={control}
+              name="status"
+              render={({ field: { onChange, value } }) => (
+                <View className="flex-row flex-wrap gap-3">
+                  {statusOptions.map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      onPress={() => onChange(status)}
+                      className={`px-5 py-3 rounded-xl border-2 ${
+                        value === status
+                          ? "bg-green-50 border-green-500"
+                          : "bg-white border-gray-300"
+                      }`}
+                    >
+                      <Text
+                        className={`capitalize text-base font-semibold ${
+                          value === status ? "text-green-600" : "text-gray-700"
+                        }`}
+                      >
+                        {status}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            />
+          </View>
+        </View>
+
+        {/* Images Section */}
+        <View className="mb-8">
+          <View className="mb-6">
+            <View className="flex-row items-center mb-4">
+              <View className="w-1 h-6 bg-blue-600 rounded-full mr-3" />
+              <Text className="text-xl font-bold text-gray-900">
+                Property Images
+              </Text>
+            </View>
+          </View>
+
+          <ImageUploader
+            images={selectedImages}
+            setImages={setSelectedImages}
+          />
+        </View>
+
+        {/* Submit Button */}
+        <View className="mb-6">
+          <TouchableOpacity
+            onPress={handleSubmit(onSubmit)}
+            disabled={isUpdating}
+            className={`rounded-xl py-4 items-center shadow-sm ${
+              isUpdating ? "bg-blue-400" : "bg-blue-600"
+            }`}
+          >
+            <Text className="text-white font-bold text-lg w-full text-center">
+              {isUpdating ? "Updating Property..." : "Update Property"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}

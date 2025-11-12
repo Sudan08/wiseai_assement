@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,21 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { useGetProperties } from "../../src/hooks/property/useGetProperties";
+import { useInfiniteProperties } from "../../src/hooks/property/useInfiniteProperties";
 import PropertyCard from "../../src/components/common/PropertyCard";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-const PROPERTY_TYPES = ["house", "apartment", "townhouse"];
-const STATUS_TYPES = ["available", "sold"];
+const PROPERTY_TYPES = [
+  "apartment",
+  "house",
+  "condo",
+  "villa",
+  "townhouse",
+  "studio",
+];
+const STATUS_TYPES = ["available", "sold", "pending"];
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -27,22 +34,41 @@ export default function SearchScreen() {
 
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data, isLoading } = useGetProperties({
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useInfiniteProperties({
     search,
-    page: 1,
     limit: 10,
+    sortBy: "createdAt",
+    sortOrder: "desc",
     filters: {
       city: city || undefined,
-      type: propertyType || undefined,
+      propertyType: propertyType || undefined, // Changed from 'type'
       status: status || undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
     },
   });
 
-  const propertyData = data?.data || [];
+  // Flatten all pages into a single array
+  const allProperties = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
 
-  // This is the component for the fully fixed (non-scrolling) expandable filters.
+  // Get total count from the first page
+  const totalCount = data?.pages[0]?.total || 0;
+
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
   const renderExpandableFilters = () => {
     if (!showFilters) return null;
 
@@ -59,10 +85,10 @@ export default function SearchScreen() {
 
         {/* Property Type */}
         <Text className="text-sm mb-1">Property Type</Text>
-        <View className="flex-row mb-2">
-          {PROPERTY_TYPES.map((type) => (
+        <View className="flex-row mb-2 flex flex-wrap gap-2">
+          {PROPERTY_TYPES.map((type, index) => (
             <TouchableOpacity
-              key={type}
+              key={index}
               className={`mr-3 px-3 py-1 rounded-full border ${
                 propertyType === type
                   ? "bg-blue-600 border-blue-600"
@@ -84,9 +110,9 @@ export default function SearchScreen() {
         {/* Status */}
         <Text className="text-sm mb-1">Status</Text>
         <View className="flex-row mb-2">
-          {STATUS_TYPES.map((stat) => (
+          {STATUS_TYPES.map((stat, index) => (
             <TouchableOpacity
-              key={stat}
+              key={index}
               className={`mr-3 px-3 py-1 rounded-full border ${
                 status === stat
                   ? "bg-blue-600 border-blue-600"
@@ -128,13 +154,26 @@ export default function SearchScreen() {
   };
 
   const renderEmptyState = () => {
-    if (isLoading) {
-      return <ActivityIndicator size="large" style={{ marginTop: 32 }} />;
-    }
     return (
-      <Text className="text-center text-gray-400 mt-10">
-        No properties found matching your criteria.
-      </Text>
+      <View className="items-center justify-center py-20">
+        <Ionicons name="home-outline" size={64} color="#D1D5DB" />
+        <Text className="text-center text-gray-400 mt-4 text-base">
+          No properties found matching your criteria.
+        </Text>
+        <Text className="text-center text-gray-400 text-sm px-8 mt-2">
+          Try adjusting your filters or search terms.
+        </Text>
+      </View>
+    );
+  };
+
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+
+    return (
+      <View className="py-4">
+        <ActivityIndicator size="small" color="#3B82F6" />
+      </View>
     );
   };
 
@@ -162,13 +201,13 @@ export default function SearchScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Expandable Filters (Now fixed underneath the search bar) */}
+        {/* Expandable Filters */}
         {renderExpandableFilters()}
       </View>
 
-      {/* 2. SCROLLING CONTENT: FlatList */}
+      {/* 2. SCROLLING CONTENT: FlatList with Infinite Scroll */}
       <FlatList
-        data={propertyData}
+        data={allProperties}
         renderItem={({ item }) => (
           <View>
             <PropertyCard
@@ -179,16 +218,32 @@ export default function SearchScreen() {
             />
           </View>
         )}
-        keyExtractor={(item) => String(item.id)}
-        // Ensure there is no ListHeaderComponent so the list starts directly below the fixed header
+        keyExtractor={(_, index) => String(index)}
         ListHeaderComponent={<View className="h-4" />}
         ListEmptyComponent={renderEmptyState}
+        ListFooterComponent={renderFooter}
         ItemSeparatorComponent={renderListSeparator}
         keyboardShouldPersistTaps="handled"
         className="flex-1"
-        // Adjust content inset/padding to prevent content from being hidden by the fixed header
-        // This is often needed in React Native but may not be necessary with a separate header View.
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshing={isLoading}
+        onRefresh={refetch}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
+        windowSize={10}
       />
+
+      {/* Results counter */}
+      {allProperties.length > 0 && (
+        <View className="absolute bottom-4 right-4 bg-blue-600 px-4 py-2 rounded-full shadow-lg">
+          <Text className="text-white font-semibold text-sm">
+            {allProperties.length} / {totalCount} properties
+          </Text>
+        </View>
+      )}
     </View>
   );
 }

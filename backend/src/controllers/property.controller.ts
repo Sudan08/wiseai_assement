@@ -27,9 +27,6 @@ export async function getAllPropertiesController(req: Request, res: Response) {
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: "insensitive" } },
-        { description: { contains: search as string, mode: "insensitive" } },
-        { city: { contains: search as string, mode: "insensitive" } },
-        { address: { contains: search as string, mode: "insensitive" } },
       ];
     }
     if (city) where.city = city as string;
@@ -140,48 +137,13 @@ export async function createPropertyController(req: Request, res: Response) {
       propertyType,
       status,
       images,
-      userId,
     } = req.body;
 
-    // Required fields validation
-    if (
-      !title ||
-      !price ||
-      !address ||
-      !city ||
-      !state ||
-      !zipCode ||
-      bedrooms === undefined ||
-      bathrooms === undefined ||
-      area === undefined ||
-      !propertyType ||
-      !userId
-    ) {
-      return res.status(400).json({
-        error:
-          "Missing required fields: title, price, address, city, state, zipCode, bedrooms, bathrooms, area, propertyType, userId",
-      });
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    // Type validation
-    if (typeof price !== "number" || price <= 0) {
-      return res.status(400).json({ error: "Price must be a positive number" });
-    }
-    if (typeof bedrooms !== "number" || bedrooms < 0) {
-      return res
-        .status(400)
-        .json({ error: "Bedrooms must be a non-negative number" });
-    }
-    if (typeof bathrooms !== "number" || bathrooms < 0) {
-      return res
-        .status(400)
-        .json({ error: "Bathrooms must be a non-negative number" });
-    }
-    if (typeof area !== "number" || area <= 0) {
-      return res.status(400).json({ error: "Area must be a positive number" });
-    }
-
-    // Verify user exists
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -245,35 +207,6 @@ export async function updatePropertyController(req: Request, res: Response) {
     }
 
     // Validate types if provided
-    if (price !== undefined && (typeof price !== "number" || price <= 0)) {
-      return res.status(400).json({ error: "Price must be a positive number" });
-    }
-    if (
-      bedrooms !== undefined &&
-      (typeof bedrooms !== "number" || bedrooms < 0)
-    ) {
-      return res
-        .status(400)
-        .json({ error: "Bedrooms must be a non-negative number" });
-    }
-    if (
-      bathrooms !== undefined &&
-      (typeof bathrooms !== "number" || bathrooms < 0)
-    ) {
-      return res
-        .status(400)
-        .json({ error: "Bathrooms must be a non-negative number" });
-    }
-    if (area !== undefined && (typeof area !== "number" || area <= 0)) {
-      return res.status(400).json({ error: "Area must be a positive number" });
-    }
-
-    const existingProperty = await prisma.property.findUnique({
-      where: { id },
-    });
-    if (!existingProperty) {
-      return res.status(404).json({ error: "Property not found" });
-    }
 
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
@@ -320,24 +253,45 @@ export async function updatePropertyController(req: Request, res: Response) {
 export async function deletePropertyController(req: Request, res: Response) {
   try {
     const { id } = req.params;
+    const userId = req.user?.userId;
 
     if (!id) {
       return res.status(400).json({ error: "Property ID is required" });
     }
 
-    const existingProperty = await prisma.property.findUnique({
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const property = await prisma.property.findUnique({
       where: { id },
     });
-    if (!existingProperty) {
+
+    if (!property) {
       return res.status(404).json({ error: "Property not found" });
     }
 
+    if (property.userId !== userId) {
+      return res
+        .status(403)
+        .json({ error: "You do not have permission to delete this property" });
+    }
+
+    // Delete all favourites related to this property first
+    await prisma.favourite.deleteMany({
+      where: { propertyId: id },
+    });
+
+    // Now delete the property
     await prisma.property.delete({
       where: { id },
     });
 
-    return res.status(200).json({ message: "Property deleted successfully" });
+    return res.status(200).json({
+      message: "Property and related favourites deleted successfully",
+    });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: "Failed to delete property" });
   }
 }
@@ -347,7 +301,8 @@ export async function getRecommendedPropertiesController(
   res: Response
 ) {
   try {
-    const userId = req.user?.id;
+    res.set("Cache-Control", "no-store");
+    const userId = req.user?.userId;
 
     const excludeOwned = true;
     let excludePropertyIds: string[] = [];
@@ -399,5 +354,25 @@ export async function getSimilarPropertiesController(
     return res.status(500).json({
       error: "Failed to fetch similar properties",
     });
+  }
+}
+
+export async function getMyPropertiesController(req: Request, res: Response) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const properties = await prisma.property.findMany({
+      where: { userId: userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    console.log(properties);
+
+    return res.status(200).json({ data: properties });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to fetch your properties" });
   }
 }

@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const property_schema_1 = require("./../schema/property.schema");
+const express_1 = require("express");
+const property_controller_1 = require("../controllers/property.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const validate_middleware_1 = require("../middlewares/validate.middleware");
+const schema_1 = require("../schema");
+const router = (0, express_1.Router)();
+router.get("/properties/my", auth_middleware_1.authMiddleware, property_controller_1.getMyPropertiesController);
+router.get("/properties", auth_middleware_1.authMiddleware, (0, validate_middleware_1.validate)(property_schema_1.getAllPropertiesSchema), property_controller_1.getAllPropertiesController);
+router.get("/properties/recommended", auth_middleware_1.authMiddleware, property_controller_1.getRecommendedPropertiesController);
+router.get("/properties/:id/similar", auth_middleware_1.authMiddleware, property_controller_1.getSimilarPropertiesController);
+router.get("/properties/:id", auth_middleware_1.authMiddleware, property_controller_1.getPropertyByIdController);
+router.post("/properties", auth_middleware_1.authMiddleware, (0, validate_middleware_1.validate)(schema_1.createPropertySchema), property_controller_1.createPropertyController);
+router.patch("/properties/:id", auth_middleware_1.authMiddleware, (0, validate_middleware_1.validate)(schema_1.createPropertySchema), property_controller_1.updatePropertyController);
+router.delete("/properties/:id", auth_middleware_1.authMiddleware, property_controller_1.deletePropertyController);
+exports.default = router;

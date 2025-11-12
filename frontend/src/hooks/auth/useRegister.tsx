@@ -5,6 +5,7 @@ import { API_ROUTES } from "../../enum";
 import { registerUserSchemaType } from "../../schemas/user.schema";
 import { LoginResponse } from "../../types";
 import { useAuth } from "./useAuth";
+import { Alert } from "react-native";
 
 export const useRegisterMutation = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ export const useRegisterMutation = () => {
       ).data;
     },
     onSuccess: (data: LoginResponse) => {
+      Alert.alert("Success", "Registration successful!");
       router.replace("/(auth)/login");
     },
     onError: (error: any) => {

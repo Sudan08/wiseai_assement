@@ -71,14 +71,12 @@ const Login = () => {
 
       <Pressable
         onPress={handleSubmit(onSubmit)}
-        className="bg-blue-600 px-4 py-3 rounded-md items-center"
+        className={`rounded-xl py-4 items-center shadow-sm ${
+          isPending ? "bg-blue-400" : "bg-blue-600"
+        }`}
         disabled={isPending}
       >
-        {isPending ? (
-          <Text>Loggin In</Text>
-        ) : (
-          <Text className="text-white font-semibold text-lg">Log in</Text>
-        )}
+        <Text> {isPending ? "Logging in..." : "Login"} </Text>
       </Pressable>
     </View>
   );

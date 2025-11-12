@@ -17,6 +17,10 @@ export const usePostFavouriteMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["favourite", variables.userId],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["property", "recommended"],
+      });
     },
     onError: (error: AxiosError) => {
       console.log(error.response?.data || error.message);

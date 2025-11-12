@@ -45,11 +45,6 @@ export default function Favourite() {
           Start exploring amazing properties and add them to your favourites
           list!
         </Text>
-        <View className="bg-blue-500 rounded-lg px-6 py-3">
-          <Text className="text-white font-semibold text-base">
-            Browse Properties
-          </Text>
-        </View>
       </View>
     </View>
   );

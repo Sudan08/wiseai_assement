@@ -44,7 +44,6 @@ export const createPropertySchema = z.object({
     propertyType: propertyTypeEnum,
     status: propertyStatusEnum.optional(),
     images: z.array(z.string().url("Invalid image URL")).optional(),
-    userId: z.uuid("Invalid user ID"),
   }),
 });
 
@@ -102,14 +101,12 @@ export const updatePropertySchema = z.object({
     }),
 });
 
-// Get property by ID schema
 export const getPropertyByIdSchema = z.object({
   params: z.object({
     id: z.uuid("Invalid property ID"),
   }),
 });
 
-// Get all properties query schema (filters)
 export const getAllPropertiesSchema = z.object({
   query: z.object({
     city: z.string().optional(),
@@ -123,18 +120,15 @@ export const getAllPropertiesSchema = z.object({
       .string()
       .regex(/^\d+(\.\d+)?$/, "maxPrice must be a number")
       .optional(),
-    userId: z.uuid("Invalid user ID").optional(),
   }),
 });
 
-// Delete property schema
 export const deletePropertySchema = z.object({
   params: z.object({
     id: z.uuid("Invalid property ID"),
   }),
 });
 
-// Type exports
 export type CreatePropertyInput = z.infer<typeof createPropertySchema>["body"];
 export type UpdatePropertyInput = z.infer<typeof updatePropertySchema>["body"];
 export type PropertyFilters = z.infer<typeof getAllPropertiesSchema>["query"];

@@ -5,11 +5,7 @@ import {
   registerController,
 } from "../controllers/auth.controller";
 import { validate } from "../middlewares/validate.middleware";
-import {
-  loginUserSchema,
-  refreshTokenSchema,
-  registerUserSchema,
-} from "../schema";
+import { loginUserSchema, registerUserSchema } from "../schema";
 
 const router = Router();
 

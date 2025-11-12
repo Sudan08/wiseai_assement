@@ -182,8 +182,8 @@ export class RecommendationService {
     const prices = properties.map((p) => p.price);
     const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
     const priceRange = {
-      min: avgPrice * 0.7, // 30% below average
-      max: avgPrice * 1.3, // 30% above average
+      min: avgPrice * 0.7,
+      max: avgPrice * 1.3,
     };
 
     return { cities, propertyTypes, priceRange };

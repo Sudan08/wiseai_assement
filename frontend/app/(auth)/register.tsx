@@ -120,11 +120,13 @@ const Register = () => {
 
         <Pressable
           onPress={handleSubmit(onSubmit)}
-          className="bg-green-600 px-4 py-3 rounded-md items-center mt-2"
+          className={`rounded-xl py-4 items-center shadow-sm ${
+            isPending ? "bg-blue-400" : "bg-blue-600"
+          }`}
           disabled={isPending}
         >
           <Text className="text-white font-semibold text-lg">
-            Create Account
+            {isPending ? "Creating..." : "Create Account"}
           </Text>
         </Pressable>
       </View>

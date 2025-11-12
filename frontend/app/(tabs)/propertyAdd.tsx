@@ -16,6 +16,7 @@ import {
   PropertyFormSchemaType,
 } from "../../src/schemas/property.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { propertyTypes, statusOptions } from "../../src/constants";
 
 type PropertyFormData = {
   title: string;
@@ -32,9 +33,6 @@ type PropertyFormData = {
   status: string;
   images: string[]; // added since images exist in Property
 };
-
-const propertyTypes = ["house", "apartment", "condo", "townhouse", "land"];
-const statusOptions = ["available", "sold", "pending"];
 
 export default function PropertyAdd() {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -78,6 +76,7 @@ export default function PropertyAdd() {
         images: selectedImages,
         userId: userId,
       };
+
       await postProperty(formattedData);
 
       reset();
@@ -507,13 +506,6 @@ export default function PropertyAdd() {
             className={`rounded-xl py-4 items-center shadow-sm ${
               isPending ? "bg-blue-400" : "bg-blue-600"
             }`}
-            style={{
-              shadowColor: "#3B82F6",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 4,
-            }}
           >
             <Text className="text-white font-bold text-lg w-full text-center">
               {isPending ? "Adding Property..." : "Add Property"}

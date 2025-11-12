@@ -58,6 +58,12 @@ const BottomTabs = () => {
           href: null, // ✅ hides it from the tab bar completely
         }}
       />
+      <Tabs.Screen
+        name="propertyEdit"
+        options={{
+          href: null, // ✅ hides it from the tab bar completely
+        }}
+      />
     </Tabs>
   );
 };
