@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useGetProperty } from "../../src/hooks/useGetProperty";
+import { useGetProperty } from "../../src/hooks/property/useGetProperty";
 import { Ionicons } from "@expo/vector-icons";
 
-import { useAuth } from "../../src/hooks/useAuth";
+import { useAuth } from "../../src/hooks/auth/useAuth";
 import { usePostFavouriteMutation } from "../../src/hooks/favourite/usePostFavourite";
 import { useFavourite } from "../../src/hooks/favourite/useFavourite";
 import { fa } from "zod/v4/locales";

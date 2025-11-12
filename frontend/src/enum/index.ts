@@ -5,7 +5,9 @@ export enum API_ROUTES {
 
   USERS = "/users",
 
-  PROPERTIES_GET_ALL = "/properties",
+  PROPERTIES = "/properties",
 
   FAVOURITES = "/favourites",
+
+  UPLOAD = "/upload",
 }

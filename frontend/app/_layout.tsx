@@ -1,4 +1,4 @@
-import { AuthProvider, useAuth } from "../src/hooks/useAuth";
+import { AuthProvider, useAuth } from "../src/hooks/auth/useAuth";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "../src/libs/client";
 import { Stack } from "expo-router";

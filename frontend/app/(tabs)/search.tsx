@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { useGetProperties } from "../../src/hooks/useGetProperties";
+import { useGetProperties } from "../../src/hooks/property/useGetProperties";
 import PropertyCard from "../../src/components/common/PropertyCard";
 
 import { Ionicons } from "@expo/vector-icons";

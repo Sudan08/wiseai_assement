@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { axiosInstance } from "../libs/client"; // Your Axios instance
-import { API_ROUTES } from "../enum"; // Adjust API_ROUTES as appropriate
-import { PaginatedResponse, Property } from "../types"; // Your property type
+import { axiosInstance } from "../../libs/client"; // Your Axios instance
+import { API_ROUTES } from "../../enum"; // Adjust API_ROUTES as appropriate
+import { PaginatedResponse, Property } from "../../types"; // Your property type
 
 export interface GetPropertiesParams {
   page?: number;
@@ -41,7 +41,7 @@ export const useGetProperties = ({
       });
 
       const response = await axiosInstance.get<PaginatedResponse<Property>>(
-        API_ROUTES.PROPERTIES_GET_ALL, // e.g., "/properties"
+        API_ROUTES.PROPERTIES, // e.g., "/properties"
         { params }
       );
       return response.data;

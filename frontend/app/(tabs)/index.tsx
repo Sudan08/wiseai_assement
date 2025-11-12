@@ -1,8 +1,5 @@
 import { View, Text, Image, ScrollView } from "react-native";
 import HomePropertyList from "../../src/components/home/HomePropertyList";
-import { useAuth } from "../../src/hooks/useAuth";
-import { Redirect, router } from "expo-router";
-import { useEffect } from "react";
 
 export default function HomeScreen() {
   return (

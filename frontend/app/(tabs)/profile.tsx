@@ -1,8 +1,10 @@
 import { View, Text, Button } from "react-native";
-import { useAuth } from "../../src/hooks/useAuth";
+import { useAuth } from "../../src/hooks/auth/useAuth";
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { data, logout } = useAuth();
+
+  const user = data?.user;
 
   if (!user) {
     return (

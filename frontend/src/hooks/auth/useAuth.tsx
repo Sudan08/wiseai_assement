@@ -8,7 +8,7 @@ import React, {
   use,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LoginResponse, User } from "../types";
+import { LoginResponse, User } from "../../types";
 import { useRouter } from "expo-router";
 
 export const STORAGE_KEY = "@user";

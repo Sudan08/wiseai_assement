@@ -1,5 +1,8 @@
 import { type Request, type Response } from "express";
 import { prisma } from "../lib/prismaClient";
+import { RecommendationService } from "../service/recommendation.service";
+
+const recommendationService = new RecommendationService();
 
 export async function getAllPropertiesController(req: Request, res: Response) {
   try {
@@ -336,5 +339,65 @@ export async function deletePropertyController(req: Request, res: Response) {
     return res.status(200).json({ message: "Property deleted successfully" });
   } catch (error) {
     return res.status(500).json({ error: "Failed to delete property" });
+  }
+}
+
+export async function getRecommendedPropertiesController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const userId = req.user?.id;
+
+    const excludeOwned = true;
+    let excludePropertyIds: string[] = [];
+
+    if (userId && excludeOwned) {
+      const ownedProperties = await prisma.property.findMany({
+        where: { userId },
+        select: { id: true },
+      });
+      excludePropertyIds = ownedProperties.map((p) => p.id);
+    }
+
+    const recommendations = await recommendationService.getRecommendations({
+      userId,
+      limit: 5,
+      excludePropertyIds,
+    });
+
+    return res.status(200).json({
+      data: recommendations,
+      recommendationType: userId ? "personalized" : "popular",
+    });
+  } catch (error) {
+    console.error("Recommendation error:", error);
+    return res.status(500).json({
+      error: "Failed to fetch recommended properties",
+    });
+  }
+}
+
+export async function getSimilarPropertiesController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { id } = req.params;
+    const limit = parseInt(req.query.limit as string) || 5;
+
+    const similarProperties = await recommendationService.getSimilarProperties(
+      id,
+      limit
+    );
+
+    return res.status(200).json({
+      data: similarProperties,
+    });
+  } catch (error) {
+    console.error("Similar properties error:", error);
+    return res.status(500).json({
+      error: "Failed to fetch similar properties",
+    });
   }
 }

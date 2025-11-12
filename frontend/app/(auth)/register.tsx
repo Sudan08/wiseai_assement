@@ -7,7 +7,7 @@ import {
   registerUserSchema,
   registerUserSchemaType,
 } from "../../src/schemas/user.schema";
-import { useRegisterMutation } from "../../src/hooks/useRegister";
+import { useRegisterMutation } from "../../src/hooks/auth/useRegister";
 
 const Register = () => {
   const {

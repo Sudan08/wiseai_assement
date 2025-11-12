@@ -1,6 +1,6 @@
 import React from "react";
 import { FlatList, View } from "react-native";
-import { useGetProperties } from "../../hooks/useGetProperties";
+import { useGetProperties } from "../../hooks/property/useGetProperties";
 import PropertyCardSkeleton from "../common/SkeletonPropertyCard";
 import PropertyCard from "../common/PropertyCard";
 import { Property } from "../../types";

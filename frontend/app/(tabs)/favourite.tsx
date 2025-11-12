@@ -1,6 +1,5 @@
 import { useRouter } from "expo-router";
 import { View, Text, FlatList } from "react-native";
-import { useAuth } from "../../src/hooks/useAuth";
 import PropertyCard from "../../src/components/common/PropertyCard";
 import { useFavourite } from "../../src/hooks/favourite/useFavourite";
 import { Property } from "../../src/types";

@@ -1,11 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { API_URL, axiosInstance } from "../libs/client";
-import { API_ROUTES } from "../enum";
-import { registerUserSchemaType } from "../schemas/user.schema";
-import { LoginResponse, User } from "../types";
+import { axiosInstance } from "../../libs/client";
+import { API_ROUTES } from "../../enum";
+import { registerUserSchemaType } from "../../schemas/user.schema";
+import { LoginResponse } from "../../types";
 import { useAuth } from "./useAuth";
-import { AxiosError, AxiosResponse } from "axios";
 
 export const useRegisterMutation = () => {
   const router = useRouter();

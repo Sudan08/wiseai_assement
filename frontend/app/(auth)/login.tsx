@@ -7,7 +7,7 @@ import {
   loginUserSchema,
   loginUserSchemaType,
 } from "../../src/schemas/user.schema";
-import { useLoginMutation } from "../../src/hooks/useLogin";
+import { useLoginMutation } from "../../src/hooks/auth/useLogin";
 
 const Login = () => {
   const {

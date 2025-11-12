@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useGetFavourites } from "./useGetFavourites";
-import { useAuth } from "../useAuth";
+import { useAuth } from "../auth/useAuth";
 import { Favourite } from "../../types";
 
 interface FavouriteContext {

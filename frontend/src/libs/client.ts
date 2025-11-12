@@ -2,14 +2,14 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { QueryClient } from "@tanstack/react-query";
 import { API_ROUTES } from "../enum";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { STORAGE_KEY } from "../hooks/useAuth";
+import { STORAGE_KEY } from "../hooks/auth/useAuth";
 import { LoginResponse } from "../types";
 
 export const API_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000/api";
+  process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
 
 export const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: API_URL + "/api",
   headers: {
     "Content-Type": "application/json",
   },

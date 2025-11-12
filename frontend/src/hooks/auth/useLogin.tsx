@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { API_ROUTES } from "../enum";
-import { loginUserSchemaType } from "../schemas/user.schema"; // Assumes you have a login schema
-import { LoginResponse, User } from "../types";
+import { API_ROUTES } from "../../enum";
+import { loginUserSchemaType } from "../../schemas/user.schema"; // Assumes you have a login schema
+import { LoginResponse } from "../../types";
 import { useAuth } from "./useAuth";
-import { axiosInstance } from "../libs/client";
+import { axiosInstance } from "../../libs/client";
 import { AxiosError } from "axios";
 
 export const useLoginMutation = () => {

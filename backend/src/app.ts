@@ -8,6 +8,8 @@ import userRouter from "../src/routers/user.route";
 import propertyRouter from "../src/routers/property.route";
 import favouriteRouter from "../src/routers/favourite.route";
 import morgan from "morgan";
+import imageRouter from "../src/routers/image.route";
+import path from "path";
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ app.use(
   })
 );
 
+app.use(express.static(path.join(__dirname, "../public")));
+
 app.use(cookieParser());
 
 app.use(morgan("dev"));
@@ -30,6 +34,7 @@ app.use("/api", authRouter);
 app.use("/api", userRouter);
 app.use("/api", propertyRouter);
 app.use("/api", favouriteRouter);
+app.use("/api", imageRouter);
 
 app.get("/", (req, res) => {
   res.json("Welcome to WiseAI API v1");

@@ -20,4 +20,10 @@ router.put("/properties/:id", authMiddleware, updatePropertyController);
 
 router.delete("/properties/:id", authMiddleware, deletePropertyController);
 
+// router.get(
+//   "/recommended-properties",
+//   authMiddleware,
+//   getRecommendedPropertiesController
+// );
+
 export default router;

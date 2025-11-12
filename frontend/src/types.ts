@@ -31,6 +31,10 @@ export interface PropertyFavourite {
   userId: string;
 }
 
+export interface UploadResponse {
+  url: string;
+}
+
 export interface Property {
   id: string;
   title: string;
