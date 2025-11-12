@@ -46,33 +46,33 @@ EXPO_PUBLIC_API_URL=""
 ### Endpoints:
 **Some endpoints are not used but they are normally in an enterpris system having more roles(Mainly admin and superAdmin)**
 ## User
-GET /users -> (Auth required) -> Get all User (NOT USED IN APP)
-GET /users/:id -> (Auth required) -> Get individual User
-PUT /users/:id -> (Auth required) -> Update User
-DELETE /users/:id -> (Auth required) -> Delete User
+- GET /users -> (Auth required) -> Get all User (NOT USED IN APP)
+- GET /users/:id -> (Auth required) -> Get individual User
+- PUT /users/:id -> (Auth required) -> Update User
+- DELETE /users/:id -> (Auth required) -> Delete User
 
 ## Properties (AUTH REQUIRED ON ALL ROUTES)
-GET /properties/my -> get my properties
-GET /properties/recommend -> get recommended properties
-GET /properties/:id/similar -> get similar properties to the current property (Did not connect to mobile app)
-GET /properties/:id -> get property details
-POST /properties -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Create property
-PUT /properties/:id -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Update property
-DELETE /properties/:id -> Delete property
+- GET /properties/my -> get my properties
+- GET /properties/recommend -> get recommended properties
+- GET /properties/:id/similar -> get similar properties to the current property (Did not connect to mobile app)
+- GET /properties/:id -> get property details
+- POST /properties -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Create property
+- PUT /properties/:id -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Update property
+- DELETE /properties/:id -> Delete property
 
 ## Auth (OPEN route)
-POST /register -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Register user
-POST /login -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Login (Get access and refresh token)
-POST /refresh -> Refresh accessToken
+- POST /register -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Register user
+- POST /login -> (FORM VALIDATED USING ZOD IN BE AND FE) -> Login (Get access and refresh token)
+- POST /refresh -> Refresh accessToken
 
 ## Favourite
-GET /favourites -> (Auth required) -> get favourites of a user
-POST /favourites -> (Auth required) -> create favourites of a user
-DELETE /favourites/:id -> (Auth required) -> delete by favourite id -> Now that i think of using this would be more efficient.
-DELETE /favourites/user/:userId/property/:propertyId -> (Auth required) -> delete by userId and property Id -> using this as it was easier to get userId and propertyId.
+- GET /favourites -> (Auth required) -> get favourites of a user
+- POST /favourites -> (Auth required) -> create favourites of a user
+- DELETE /favourites/:id -> (Auth required) -> delete by favourite id -> Now that i think of using this would be more efficient.
+- DELETE /favourites/user/:userId/property/:propertyId -> (Auth required) -> delete by userId and property Id -> using this as it was easier to get userId and propertyId.
 
 ## Image
-POST /upload -> FILE (to upload image)
+- POST /upload -> FILE (to upload image)
 
 
 ### Recommendation System
@@ -85,7 +85,7 @@ There are there methods used to get 5 recommendation depending on the need.
 **Other method would be to use embedding and vectorDB but I did not have enough time to setup those and have no prior experience using mongodb vector search. I have used pg_vector for postgres**
 
 
-###Journey through out development:
+### Journey through out development:
 First day i spent most of my time on properly initializing the projects. This includes setting up Prisma , models , routes , controllers on the backend side.
 On the mobile app, I setup libraries but had problem on running the app in android due to version mismatch of various libraries. The nativewind did not support latest react reanimated due to which
 I was having problem a debug apk to connect to my phone direclty.
