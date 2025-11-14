@@ -53,7 +53,7 @@ export const DeleteConfirmationModal: React.FC<
           </Text>
 
           {/* Buttons */}
-          <View className="space-y-3 gap-3">
+          <View className="space-y-3 gap-3 q">
             <TouchableOpacity
               className={`bg-red-600 rounded-xl py-3 items-center ${
                 isDeleting ? "opacity-50" : ""

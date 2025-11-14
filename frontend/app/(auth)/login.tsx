@@ -76,7 +76,9 @@ const Login = () => {
         }`}
         disabled={isPending}
       >
-        <Text> {isPending ? "Logging in..." : "Login"} </Text>
+        <Text className="text-white font-semibold text-lg">
+          {isPending ? "Logging in..." : "Login"}{" "}
+        </Text>
       </Pressable>
     </View>
   );
